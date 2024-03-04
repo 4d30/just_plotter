@@ -40,6 +40,7 @@ To get started with this project, follow these steps:
 1. (Recommended) Install with pyenv.
 If you don't have this version available, it may be installed with pyenv.
 pyenv is a tool for managing multiple versions of Python on the same system.
+[https://github.com/pyenv/pyenv](https://github.com/pyenv/pyenv)
 
 ```sh
 cd $HOME
