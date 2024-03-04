@@ -48,6 +48,7 @@ If you don't have 3.11 available, it may be installed with pyenv.
 pyenv is a tool for managing multiple versions of Python on the same system.
 
 ```sh
+cd $HOME
 curl https://pyenv.run | bash
 pyenv install 3.11.0
 ```
