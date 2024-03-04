@@ -34,15 +34,6 @@ To get started with this project, follow these steps:
 - Install python-3.11
 - Install dependencies
 
-#### Python 3.11 with pyenv
-
-If you don't have 3.11 available, it may be installed with pyenv.
-pyenv is a tool for managing multiple versions of Python.
-
-```sh
-curl https://pyenv.run | bash
-pyenv install 3.11.0
-```
 
 ### Installation
 
@@ -54,6 +45,16 @@ pyenv install 3.11.0
 
 - Python 3.11.0+ is required
 - [https://www.python.org/downloads/](https://www.python.org/downloads/)
+
+#### Python 3.11 with pyenv (Recommended)
+
+If you don't have 3.11 available, it may be installed with pyenv.
+pyenv is a tool for managing multiple versions of Python.
+
+```sh
+curl https://pyenv.run | bash
+pyenv install 3.11.0
+```
 
 3. Install dependencies
    ```sh
