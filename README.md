@@ -43,10 +43,7 @@ To get started with this project, follow these steps:
    ```
 #### Install Python 3.11, two options
 
-1. Install from Python.org
-
-Python 3.11.0+ is required and can be downloaded from Python.org.
-- [https://www.python.org/downloads/](https://www.python.org/downloads/)
+1. Install from Python.org. Python 3.11.0+ is required and can be downloaded from Python.org. [https://www.python.org/downloads/](https://www.python.org/downloads/)
 
 2. Install with pyenv (Recommended)
 If you don't have 3.11 available, it may be installed with pyenv.
