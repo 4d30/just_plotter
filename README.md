@@ -1,4 +1,4 @@
-# Jump Plotter
+# Just Plotter
 
 A user application which displays data
 
