@@ -55,7 +55,7 @@ To get started with this project, follow these steps:
 
 ## Usage
 
-Edit plot.conf. Set *rto* to the path of RTO/ on your system 
+Edit the config file `config.ini`. Set *rto* to the path of RTO/ on your system 
 ```sh
 gedit config.ini
 ```
