@@ -43,8 +43,8 @@ To get started with this project, follow these steps:
    ```
 #### Install Python 3.11, two options
 
-1. Install with pyenv (Recommended)
-If you don't have 3.11 available, it may be installed with pyenv.
+1. (Recommended) Install with pyenv.
+If you don't have this version available, it may be installed with pyenv.
 pyenv is a tool for managing multiple versions of Python on the same system.
 
 ```sh
