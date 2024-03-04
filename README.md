@@ -47,6 +47,7 @@ To get started with this project, follow these steps:
 
 3. Install dependencies
    ```sh
+   cd just_plotter
    python -m venv venv
    .\venv\Scripts\activate (Windows)
    source venv/bin/activate (Linux/Mac)
