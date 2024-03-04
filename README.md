@@ -49,8 +49,7 @@ To get started with this project, follow these steps:
    ```sh
    cd just_plotter
    python -m venv venv
-   .\venv\Scripts\activate (Windows)
-   source venv/bin/activate (Linux/Mac)
+   source venv/bin/activate
    pip install -r requirements.txt
    ```
 
