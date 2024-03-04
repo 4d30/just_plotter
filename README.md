@@ -37,16 +37,16 @@ To get started with this project, follow these steps:
 
 ### Installation
 
-1. Clone the repository
+#### Clone the repository
    ```sh
    git clone git@github.com:4d30/just_plotter.git
    ```
-2. Install Python
+#### Install Python
 
 - Python 3.11.0+ is required
 - [https://www.python.org/downloads/](https://www.python.org/downloads/)
 
-#### Python 3.11 with pyenv (Recommended)
+##### Python 3.11 with pyenv (Recommended)
 
 If you don't have 3.11 available, it may be installed with pyenv.
 pyenv is a tool for managing multiple versions of Python.
@@ -56,7 +56,7 @@ curl https://pyenv.run | bash
 pyenv install 3.11.0
 ```
 
-3. Install dependencies
+#### Install dependencies
    ```sh
    cd just_plotter
    pyenv local 3.11.0
