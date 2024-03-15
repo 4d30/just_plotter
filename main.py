@@ -1,11 +1,13 @@
 #!/bin/env python
 
 import os
+import sys
 import csv
 import json
 import random
 import configparser
 from array import array
+import math
 import operator as op
 import itertools as its
 import functools as fts
@@ -93,6 +95,9 @@ def read_time(data):
     data = array('f', data)[::resample_rate]
     return data
 
+def square(num):
+    return math.pow(num, 2)
+
 def read_timeseries(instrument_axis_handle_config):
     instrument, axis, handle, config = instrument_axis_handle_config
     if not handle:
@@ -104,6 +109,14 @@ def read_timeseries(instrument_axis_handle_config):
     foo = map(op.methodcaller('lower'), handle[0].keys())
     foo = tuple(foo)
     is_instrument = map(op.contains, foo, its.repeat(instrument))
+    is_instrument = tuple(is_instrument)
+    mag_cols = its.compress(header, is_instrument)
+    mag = map(op.itemgetter(*mag_cols), handle)
+    mag = map(map, its.repeat(float), mag)
+    mag = map(map, its.repeat(square), mag)
+    mag = map(sum, mag)
+    mag = map(math.sqrt, mag)
+    mag = array('f', mag)[::resample_rate]
     is_axis = map(op.contains, foo, its.repeat(axis))
     col = map(op.and_, is_instrument, is_axis)
     col = its.compress(foo, col)
@@ -112,7 +125,7 @@ def read_timeseries(instrument_axis_handle_config):
     data = map(op.itemgetter(col), handle)
     data = map(float, data)
     data = array('f', data)[::resample_rate]
-    return data
+    return data, mag
 
 
 def scale(data, ii):
@@ -139,7 +152,7 @@ def plot_serieses(args):
     if not data:
         return None
     data = scale(timeseries[sen], jj)
-    axs[ii].plot(times[sen], data)
+    axs[ii].scatter(times[sen], data, s=1, alpha=0.5)
     axs[ii].annotate(sen, (times[sen][-1], data[0] - 0.25))
     return None
 
@@ -234,15 +247,15 @@ def mark_done(spl_row, initials):
     return None
 
 
-def crank_handle(spl, initials, contnue):
+def crank_handle(spl, initials, contnue, debug=False):
     if contnue:
         spl_row = next(spl)
-        contnue = plot_spl_row(spl_row, initials)
-        return crank_handle(spl, initials, contnue)
+        contnue = plot_spl_row(spl_row, initials, debug)
+        return crank_handle(spl, initials, contnue, debug)
     else:
         return None
 
-def plot_spl_row(spl_row, initials):
+def plot_spl_row(spl_row, initials, debug=False):
     config = configparser.ConfigParser()
     config.read("config.ini")
     ecf = load_ecf(spl_row)
@@ -260,15 +273,25 @@ def plot_spl_row(spl_row, initials):
     max_time = max(max_time)
     pool = mp.Pool()
     while True:
-        fig, axs = plt.subplots(2, sharex=True, figsize=(10, 5))
+        fig, axs = plt.subplots(3, sharex=True, figsize=(10, 5))
         fig.supxlabel('Time (s)')
         for ii, inst in enumerate(instuments):
             if ii > 1:
                 break
+            for pair in filter(filter_events, its.pairwise(ecf)):
+                event = pair[0]['Event']
+                t0 = float(pair[0]['Sensor Time(ms)'])/1000
+                t1 = float(pair[1]['Sensor Time(ms)'])/1000
+                color = ''.join(['C', event])
+                axs[ii].axvspan(t0, t1, alpha=0.5, color=color)
             axis = next(axes)
             args = zip(its.repeat(inst), its.repeat(axis), handles,
                        its.repeat(config))
-            timeseries = pool.map(read_timeseries, args)
+            if debug:
+                timeseries = map(read_timeseries, args)
+                timeseries = tuple(timeseries)
+            else:
+                timeseries = pool.map(read_timeseries, args)
             timeseries = zip(all_sensors, timeseries)
             timeseries = dict(timeseries)
             args = zip(its.repeat(ii),
@@ -281,14 +304,15 @@ def plot_spl_row(spl_row, initials):
                 if sen not in timeseries:
                     continue
                 data = timeseries[sen]
+                axial_data, mag = data
                 if not data:
                     continue
                 time_vec = times[sen]
                 if add_489[jj]:
                     time_vec = map(op.add, times[sen], its.repeat(489/1000))
                     time_vec = array('f', time_vec)
-                data = scale(timeseries[sen], jj)
-                axs[ii].plot(time_vec, data)
+                data = scale(axial_data, jj)
+                axs[ii].scatter(time_vec, data, s=1, alpha=0.5)
                 axs[ii].set_yticklabels([])
                 if '(g)' in inst:
                     axs[ii].set_ylabel('Accl')
@@ -297,12 +321,12 @@ def plot_spl_row(spl_row, initials):
                 axs[ii].annotate(sen, (max_time, sts.mean(data)))
                 if add_489[jj]:
                     axs[ii].annotate('489', (0, sts.mean(data)))
-            for pair in filter(filter_events, its.pairwise(ecf)):
-                event = pair[0]['Event']
-                t0 = float(pair[0]['Sensor Time(ms)'])/1000
-                t1 = float(pair[1]['Sensor Time(ms)'])/1000
-                color = ''.join(['C', event])
-                axs[ii].axvspan(t0, t1, alpha=0.5, color=color)
+                if op.eq(inst, '(g)'):
+                    axs[2].scatter(time_vec, scale(mag, jj), s=1, alpha=0.5)
+                    axs[2].set_yticklabels([])
+                    axs[2].set_ylabel('Accel Mag')
+                    axs[2].set_xlabel('Time (s)')
+        fig.tight_layout()
         fig.suptitle('_'.join([spl_row['SubjID'],
                                spl_row['TimePoint'],
                                axis[0]
@@ -350,18 +374,30 @@ def load_spl():
     spl = config['paths']['spl']
     spl_handle = open(spl, 'r')
     spl = csv.DictReader(spl_handle)
-    viewed = already_viewed()
-    foo = fts.partial(predicate, viewed)
-    spl = filter(foo, spl)
-    spl = list(spl)
-    random.shuffle(spl)
+#   sql = filter(lambda x: x['SubjID'] == 'AJ010' and x['TimePoint'] == '3M', spl)
+#    viewed = already_viewed()
+#    foo = fts.partial(predicate, viewed)
+#
+#    spl = filter(foo, spl)
+#    spl = list(spl)
+#    random.shuffle(spl)
+#    spl = iter(spl)
+    spl = filter(lambda x: x['SubjID'] == 'AJ010', spl)
+    spl = filter(lambda x: x['TimePoint'] == '3M', spl)
+    spl = tuple(spl)
+    spl_handle.close()
     spl = iter(spl)
     return spl
 
 def main():
+    args = sys.argv
+    if '-d' in args:
+        debug = True
+    else:
+        debug = False
     spl = load_spl()
     initials = get_initials('')
-    crank_handle(spl, initials, True)
+    crank_handle(spl, initials, True, debug)
     return None
 
 
