@@ -31,6 +31,7 @@ all_sensors = (
     'Head',
     )
 
+
 def get_file(subj_id, time_point, sensor):
     if not sensor:
         return None
@@ -38,10 +39,11 @@ def get_file(subj_id, time_point, sensor):
     config.read("config.ini")
     filepattern = '_'.join([subj_id, time_point, sensor])
     file = rto.browse(config['paths']['rto'], filepattern,
-                            subject=subj_id)
+                      subject=subj_id)
     file = filter(lambda x: 'accl_gyro_raw' in x, file)
     file = next(file, None)
     return file
+
 
 def read_csv(file):
     if not file:
@@ -66,6 +68,7 @@ def spl2files(spl_row):
 
     return files
 
+
 def get_handles(spl_row):
     files = spl2files(spl_row)
     pool = mp.Pool()
@@ -73,6 +76,7 @@ def get_handles(spl_row):
     pool.close()
     pool.join()
     return data
+
 
 def read_time(data):
     if not data:
@@ -95,8 +99,10 @@ def read_time(data):
     data = array('f', data)[::resample_rate]
     return data
 
+
 def square(num):
     return math.pow(num, 2)
+
 
 def read_timeseries(instrument_axis_handle_config):
     instrument, axis, handle, config = instrument_axis_handle_config
@@ -176,7 +182,7 @@ def load_ecf(spl_row):
     config.read("config.ini")
     filepattern = '_'.join([spl_row['SubjID'], spl_row['TimePoint'], 'ECF'])
     ecf = rto.browse(config['paths']['rto'], filepattern,
-                            subject=spl_row['SubjID'])
+                     subject=spl_row['SubjID'])
     ecf = next(ecf, None)
     if not ecf:
         return None
@@ -184,6 +190,7 @@ def load_ecf(spl_row):
     ecf = csv.DictReader(ecf_handle)
     ecf = tuple(ecf)
     return ecf
+
 
 def filter_events(pair):
     a = op.ne(pair[0]['Event'], '8')
@@ -197,11 +204,12 @@ def lookup_fw_version(file, fw_versions):
     file = os.path.basename(file)
     fw_version = filter(lambda x: x['sens'] == file, fw_versions)
     fw_version = next(fw_version, {})
-    if 'fw_ver' in fw_version :
+    if 'fw_ver' in fw_version:
         version = fw_version['fw_ver']
     else:
         version = None
     return version
+
 
 def test_489_condition(file, fw_versions):
     if not file:
@@ -210,6 +218,7 @@ def test_489_condition(file, fw_versions):
     is_ammonitor = op.eq(fw_version, 'N/A')
     is_S = op.contains(file, '_S')
     return op.and_(is_ammonitor, is_S)
+
 
 def do_489_tests(spl_row):
     config = configparser.ConfigParser()
@@ -254,6 +263,7 @@ def crank_handle(spl, initials, contnue, debug=False):
         return crank_handle(spl, initials, contnue, debug)
     else:
         return None
+
 
 def plot_spl_row(spl_row, initials, debug=False):
     config = configparser.ConfigParser()
@@ -361,6 +371,7 @@ def already_viewed():
         viewed = []
     return viewed
 
+
 def predicate(viewed, spl_row):
     for v in viewed:
         if v[0] == spl_row['SubjID'] and v[1] == spl_row['TimePoint']:
@@ -374,20 +385,15 @@ def load_spl():
     spl = config['paths']['spl']
     spl_handle = open(spl, 'r')
     spl = csv.DictReader(spl_handle)
-#   sql = filter(lambda x: x['SubjID'] == 'AJ010' and x['TimePoint'] == '3M', spl)
-#    viewed = already_viewed()
-#    foo = fts.partial(predicate, viewed)
-#
-#    spl = filter(foo, spl)
-#    spl = list(spl)
-#    random.shuffle(spl)
-#    spl = iter(spl)
-    spl = filter(lambda x: x['SubjID'] == 'AJ010', spl)
-    spl = filter(lambda x: x['TimePoint'] == '3M', spl)
-    spl = tuple(spl)
+    viewed = already_viewed()
+    foo = fts.partial(predicate, viewed)
+    spl = filter(foo, spl)
+    spl = list(spl)
     spl_handle.close()
+    random.shuffle(spl)
     spl = iter(spl)
     return spl
+
 
 def main():
     args = sys.argv
@@ -403,6 +409,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
