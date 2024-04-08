@@ -35,20 +35,9 @@ To get started with this project, follow these steps:
 
 ### Installation
 
-#### 1. Install Python 3.11 as required. Two options:
+#### 1. Install Python 3.11 as required.
 
-1. (Recommended) Install with pyenv.
-If you don't have this version available, it may be installed with pyenv.
-pyenv is a tool for managing multiple versions of Python on the same system.
-[https://github.com/pyenv/pyenv](https://github.com/pyenv/pyenv)
-
-```sh
-cd $HOME
-curl https://pyenv.run | bash
-pyenv install 3.11.0
-```
-
-2. Install from Python.org. Python 3.11.0+ is required and can be downloaded from [https://www.python.org/downloads/](https://www.python.org/downloads/)
+    Install from Python.org. Python 3.11.0+ is required and can be downloaded from [https://www.python.org/downloads/](https://www.python.org/downloads/)
 
 #### 2. Clone the repository
    ```sh
@@ -56,6 +45,7 @@ pyenv install 3.11.0
    ```
 
 #### 3. Install dependencies
+   Linux
    ```sh
    cd just_plotter
    pyenv local 3.11.0
