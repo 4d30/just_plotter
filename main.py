@@ -314,9 +314,9 @@ def plot_spl_row(spl_row, initials, debug=False):
                 if sen not in timeseries:
                     continue
                 data = timeseries[sen]
-                axial_data, mag = data
                 if not data:
                     continue
+                axial_data, mag = data
                 time_vec = times[sen]
                 if add_489[jj]:
                     time_vec = map(op.add, times[sen], its.repeat(489/1000))
