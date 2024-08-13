@@ -373,7 +373,7 @@ def already_viewed():
 
 
 def predicate(viewed, spl_row):
-    for v in viewed:
+    for v in filter(bool, viewed):
         if v[0] == spl_row['SubjID'] and v[1] == spl_row['TimePoint']:
             return False
     return True
